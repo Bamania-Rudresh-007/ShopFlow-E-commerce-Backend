@@ -1,0 +1,27 @@
+{
+  "name": "shopflow-e-commerce-backend",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Bamania-Rudresh-007/ShopFlow-E-commerce-Backend#readme",
+  "bugs": {
+    "url": "https://github.com/Bamania-Rudresh-007/ShopFlow-E-commerce-Backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bamania-Rudresh-007/ShopFlow-E-commerce-Backend.git"
+  },
+  "license": "ISC",
+  "author": "Bamania Rudresh",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.5.0"
+  }
+}
