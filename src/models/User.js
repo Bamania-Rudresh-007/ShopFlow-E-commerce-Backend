@@ -58,4 +58,6 @@ const userSchema = new mongoose.Schema({
   }
 }, { timestamps: true })
 
-const User = mongoose.model("ShopFlow-user", userSchema)
+const User = mongoose.model("ShopFlow-user", userSchema);
+
+export default User;
