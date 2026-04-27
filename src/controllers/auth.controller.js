@@ -39,7 +39,7 @@ const login = async (req, res) => {
 
         if(!user){
             return res.status(401).json({
-                message: "Invlid email or password",
+                message: "Invalid email or password",
             })
         }
 
@@ -54,10 +54,11 @@ const login = async (req, res) => {
         const token = jwt.sign({id: user._id, email: user.email}, process.env.JWT_SECRET,{expiresIn: "15m"});
 
 
-        return res.cookie("accessToken", token,{
-            httpOnly: true,
-            sameSite: "Strict",
-        })
+        return res
+        // .cookie("accessToken", token,{
+        //     httpOnly: true,
+        //     sameSite: "Strict",
+        // })
         .status(200)
         .json({
             message: "Login successful",
@@ -66,7 +67,8 @@ const login = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-            }
+            },
+            token: token,
         })
 
     }   
@@ -78,3 +80,5 @@ const login = async (req, res) => {
         })
     }
 }
+
+export { register, login };
