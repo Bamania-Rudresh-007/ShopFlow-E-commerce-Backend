@@ -57,7 +57,6 @@ const login = async (req, res) => {
 
         user.refreshToken = refreshToken;
         await user.save();
-
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -82,5 +81,70 @@ const login = async (req, res) => {
             message: "Server Error: ",
             error: err.message,
         })
+    }
+}
+
+const refresh = async (req, res) => {
+    try{
+        const refreshToken = req.cookie.refreshToken;
+
+        if(!refreshToken){
+            return res.status(401).json({
+                message: "No refresh token, please login again",
+
+            })
+        }
+        
+        let decoded;
+        try{
+            decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
+
+        }
+        catch(err){
+            return res.status(403).json({
+                message: "Invalid or expired refresh token",
+            })
+        }
+
+        const user = await User.findById(decoded.id).select("+refreshToken");
+
+        if(!user || user.refreshToken !== refreshToken){
+            return res.status(403).json({
+                message: "Refresh token reuse detected or user not found"
+            });
+        }
+
+        const newAccessToken = jwt.sign(
+            {id: user._id, email: user.email, role: user.role},
+            process.env.accessToken,
+            {expiresIn: "15m"}
+        )
+
+        const newRefreshToken = jwt.sign(
+            {id: user._id},
+            process.env.refreshToken,
+            {expiresIn: "7d"},
+        )
+
+        user.refreshToken = newRefreshToken;
+        await user.save();
+
+        res.cookie("refreshToken", newRefreshToken,{
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+
+        return res.status(200).json({
+            accessToken: newAccessToken,
+        })
+        
+    }
+    catch(err){
+        res.status(500).json({
+            message: "Server Error: ",
+            error: err.message,
+        })  
     }
 }
