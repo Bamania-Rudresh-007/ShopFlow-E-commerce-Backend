@@ -51,16 +51,21 @@ const login = async (req, res) => {
             })
         }
 
-        const token = jwt.sign({id: user._id, email: user.email}, process.env.JWT_SECRET,{expiresIn: "15m"});
+        const accessToken = jwt.sign({id: user._id, email: user.email}, process.env.ACCESS_TOKEN,{expiresIn: "15m"});
 
+        const refreshToken = jwt.sign({id: user._id}, process.env.REFRESH_TOKEN, {expiresIn: "7d"});
 
-        return res
-        // .cookie("accessToken", token,{
-        //     httpOnly: true,
-        //     sameSite: "Strict",
-        // })
-        .status(200)
-        .json({
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+
+        return res.status(200).json({
             message: "Login successful",
             data: {
                 id: user._id,
@@ -68,9 +73,8 @@ const login = async (req, res) => {
                 email: user.email,
                 role: user.role,
             },
-            token: token,
+            accessToken,
         })
-
     }   
     catch(err){
         console.log("Login Error: ", err);
@@ -80,5 +84,3 @@ const login = async (req, res) => {
         })
     }
 }
-
-export { register, login };
