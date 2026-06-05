@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import sendEmail from "../utils/email.js";
+
 
 const register = async (req, res) => {
     try{
@@ -34,7 +36,7 @@ const register = async (req, res) => {
         const refreshToken = jwt.sign({id: newUser._id,email,}, process.env.REFRESH_TOKEN,{expiresIn: "7d"});
 
         User.refreshToken = refreshToken;
-        await User.save()
+        await newUser.save();
 
          const cookieOptions = {
             httpOnly: true,                                      
@@ -46,6 +48,8 @@ const register = async (req, res) => {
         const createdUser = newUser.toObject();
         delete createdUser.password;
         delete createdUser.refreshToken;
+
+        await sendEmail(newUser.email, "Welcome to ShopFlow backend api's", `<h1>Hello, ${newUser.name}</h1> \n<p>Thank you for registering.</p>`);
 
 
         return res
@@ -69,3 +73,5 @@ const register = async (req, res) => {
         })
     }
 }
+
+export default register;
